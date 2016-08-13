@@ -1,5 +1,7 @@
 # Galiot
-> Small IoT thing
+> Lightweight IoT swarm host designed to be hacked.
+
+Galiot is currently in heavy development.
 
 ## API
 
@@ -8,7 +10,7 @@
 Use request body to trigger multiple actions:
 
 ```
-URL: http://www.device.com/action/
+URL: http://www.galiot_device.com/action/
 
 Body:
 {
@@ -30,6 +32,7 @@ Body:
     }
   ]
 }
+
 ```
 
 ### Method two: Query strings
@@ -37,12 +40,12 @@ Body:
 Only one action can be triggered with single request
 
 ```
-http://www.med_device.com/action/led?red=high&yellow=toggle
+http://www.galiot_device.com/action/led?red=high&yellow=toggle
 or
-http://www.med_device.com/action/servo?pos=0&pattern=reset&times=2
+http://www.galiot_device.com/action/servo?pos=0&pattern=reset&times=2
 ```
 
-# Action types
+# Action types for testing hardware
   - **servo**
     - For controlling the servo
     - Parameters:
@@ -59,17 +62,18 @@ http://www.med_device.com/action/servo?pos=0&pattern=reset&times=2
       - **green**: To set green LED
     - Possible values are: `high, low, toggle`
 
-# Request relay (not yet implemented)
+# Request relay
 
 If you want to use slave devices with the main device, you can use the `relay_action` to forward actions to different devices eg. `ESP8266` wifi microcontroller.
 
-Register slave device to the main Maitolabra Electromechanical Device:
+Register slave device to the main galiot device:
 
 ```
-http://www.med_device.com/register/&action=led
+http://www.galiot_device.com/register/&action=led
 ```
 
 This would register the device sending this request to be interested in all `led` actions.
 
-When the Maitolabra Electromechanical Device gets a `led` action trigger request, it will relay the action to all devices that are registered to be interested `led` action triggers.
+When galiot gets an `led` action trigger, it will relay the action to all devices 
+that are subscribed for `led` action triggers.
 
