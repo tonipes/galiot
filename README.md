@@ -1,4 +1,5 @@
-# Maitolabra Electromechanical Device
+# Galiot
+> Small IoT thing
 
 ## API
 
