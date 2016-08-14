@@ -1,48 +1,52 @@
-import falcon
-import json
+import logging
 import urllib
 import re
 import threading
 import json
+import falcon
 
-class ActionResource(object):
-    def __init__(self, actions):
-        self.actions = actions
+class Resource(object):
+    def get_query_string_as_dict(self, req):
+        return dict(urllib.parse.parse_qsl(req.query_string))
 
-    def _get_body_json(self, stream):
-        s = ""
-        for line in stream:
-            s += line.decode("utf-8")
-            print(s)
-        return json.loads(s)
+
+class ActionResource(Resource):
+    def __init__(self, db):
+        self.db = db
+        self.logger = logging.getLogger(__name__)
+
+    def run_daemon_action(self, action_id, action, params):
+        t = threading.Thread(
+            target=action.run_action,
+            args=(action_id, params))
+        t.setDaemon(True)
+        t.start()
 
     def _run_actions(self, action_id, params):
-        for action_tuple in self.actions:
-            if re.match(action_tuple[0], action_id):
-                # Run action in a daemon thread so client doesn't have to wait action to get an response
-                t = threading.Thread(
-                    name=action_tuple[0],
-                    target=action_tuple[1].run_action,
-                    args=(action_id, params)
-                )
-                t.setDaemon(True)
-                t.start()
+        for action_obj in self.db.get_matches(action_id):
+            self.run_daemon_action(action_id, action_obj.action, params)
 
     def on_post(self, req, resp, **kwargs):
-        params = dict(urllib.parse.parse_qsl(req.query_string))
+        params = self.get_query_string_as_dict(req)
         action_id = kwargs.get('action_id', None)
         self._run_actions(action_id, params)
 
+
 class MultiActionResource(ActionResource):
-    def __init__(self, actions):
-        self.actions = actions
+    def on_post(self, req, resp, **kwargs):
+        body_obj = req.context['body_obj']
+        for action in body_obj['actions']:
+            self._run_actions(action['action_id'], action['params'])
+
+
+class SubscriptionResource(Resource):
+    def __init__(self, db):
+        self.db = db
 
     def on_post(self, req, resp, **kwargs):
-        try:
-            json = self._get_body_json(req.stream)
-        except Exception as e:
-            json = {}
-            print("Couldn't parse body")
+        params = self.get_query_string_as_dict(req)
+        actions = params.get('actions', None)
+        port = params.get('port', None)
+        address = req.remote_addr
 
-        for action in json['actions']:
-            self._run_actions(action['action_id'], action['params'])
+        self.db.add_subscription(address, port, actions)
