@@ -14,8 +14,8 @@ class Engine(object):
 
 class SlaveEngineObject(object):
     """ Model for slave """
-    def __init__(self, address, port, actions):
-        self.address = address
+    def __init__(self, host, port, actions):
+        self.host = host
         self.port = port
         self.actions = actions
 
@@ -31,22 +31,25 @@ class SubscriptionEngine(Engine):
     def __init__(self):
         self.storage = {}
 
-    def add_subscription(self, address, port, actions):
-        slave_id = "{}:{}".format(address, port)
-        self.storage[slave_id] = SlaveEngineObject(address, port, actions)
-
-        print("Added slave: {}, {}".format(slave_id, actions))
+    def add_subscription(self, host, port, actions):
+        slave_id = "{}:{}".format(host, port)
+        old_slave = self.storage.get(slave_id, None)
+        self.storage[slave_id] = SlaveEngineObject(host, port, actions)
+        if old_slave:
+            print("Updated slave: {}, {}".format(slave_id, actions))
+        else:
+            print("Added slave: {}, {}".format(slave_id, actions))
 
     def get_matches(self, action_id):
         matches = []
-        for key, slave_obj in self.storage.items():
+        for key, slave in self.storage.items():
             if re.match(slave.actions, action_id):
-                matches.append(slave_obj)
+                matches.append(slave)
         return matches
 
 
 class ActionEngine(Engine):
-    def __init__(self, actions):
+    def __init__(self):
         self.storage = {}
 
     def add_action(self, regex, action):
@@ -61,8 +64,8 @@ class ActionEngine(Engine):
     def get_matches(self, action_id):
         matches = []
 
-        for key, action_obj in self.storage.items():
-            if re.match(action_obj.regex, action_id):
-                matches.append(action_obj)
+        for key, action in self.storage.items():
+            if re.match(action.regex, action_id):
+                matches.append(action)
 
         return matches

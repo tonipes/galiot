@@ -1,5 +1,9 @@
+slave_forget_time: 600 # not implemented
+sink_address: "" # not implemented
 api_keys:
   - f9d5d3a3
   - 80db4d62
   - b5cda630
   - 34bedbb5
+
+

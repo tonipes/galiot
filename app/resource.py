@@ -5,6 +5,7 @@ import threading
 import json
 import falcon
 
+
 class Resource(object):
     def get_query_string_as_dict(self, req):
         return dict(urllib.parse.parse_qsl(req.query_string))
@@ -13,7 +14,6 @@ class Resource(object):
 class ActionResource(Resource):
     def __init__(self, db):
         self.db = db
-        self.logger = logging.getLogger(__name__)
 
     def run_daemon_action(self, action_id, action, params):
         t = threading.Thread(
@@ -23,7 +23,8 @@ class ActionResource(Resource):
         t.start()
 
     def _run_actions(self, action_id, params):
-        for action_obj in self.db.get_matches(action_id):
+        matches = self.db.get_matches(action_id)
+        for action_obj in matches:
             self.run_daemon_action(action_id, action_obj.action, params)
 
     def on_post(self, req, resp, **kwargs):

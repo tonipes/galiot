@@ -21,6 +21,7 @@ class Middleware(object):
 class JsonRequestMiddleware(Middleware):
     """ Parses request body to json object
         Json object can be found in context """
+
     def _get_body_json(self, stream):
         s = ""
         for line in stream:
@@ -56,22 +57,25 @@ class JsonResponseMiddleware(Middleware):
 class AuthMiddleware(Middleware):
     """ Checks if request has valid api key.
         Raises HTTP Unauthorized exception if valid api key is not found """
+
     def __init__(self, apikeys):
         super(AuthMiddleware, self).__init__()
         self.keys = apikeys
+
+    def _token_is_valid(self, token):
+        return token in self.keys
 
     def process_request(self, req, resp):
         if req.method not in ('OPTIONS'):
             params = dict(urllib.parse.parse_qsl(req.query_string))
             token = params.get('apikey', None)
+
             if token is None:
                 print('Unauthorized request. No token given.')
                 raise falcon.HTTPUnauthorized('Authentication required',
                     'Please provide an API key as part of the request.', [])
+
             if not self._token_is_valid(token):
                 print('Unauthorized request. Invalid token.')
                 raise falcon.HTTPUnauthorized('Authentication required',
                     'The provided API key is not valid.', [])
-
-    def _token_is_valid(self, token):
-        return token in self.keys

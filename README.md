@@ -1,7 +1,7 @@
 # Galiot
-> Lightweight IoT swarm host designed to be easily customizable.
+> Lightweight IoT swarm host.
 
-Galiot is currently in heavy development.
+Galiot is designed to be centralized access point for your IoT device network.
 
 ## API
 
@@ -12,7 +12,7 @@ Galiot is designed to be used with slave devices that register themselves to the
 Subscribe slave device to the main galiot device:
 
 ```
-http://www.galiot_device.com/register/?action=led&port=9000
+http://www.galiot_device.com/subscribe/?action=led&port=9000
 ```
 
 This would register the device sending this request to be interested in all `led` actions.
@@ -49,7 +49,6 @@ Body:
     }
   ]
 }
-
 ```
 
 #### Method two: Query strings

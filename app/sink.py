@@ -1,7 +1,5 @@
-import logging
 import falcon
 
-_logger = logging.getLogger(__name__)
 
 class Sink(object):
     """ Sink is used to catch or redirect all requests that are not catched by the resources"""

@@ -21,11 +21,11 @@ app = falcon.API(middleware=[
 
 engine_subs = engine.SubscriptionEngine()
 
-engine_action = engine.ActionEngine([
-    ('.*', action.RelayAction(
-        db=engine_subs
-    ))
-])
+engine_action = engine.ActionEngine()
+engine_action.add_action(
+    regex='.*',
+    action=action.RelayAction(db=engine_subs)
+)
 
 action_subs = resource.SubscriptionResource(engine_subs)
 
