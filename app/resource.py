@@ -12,6 +12,8 @@ class Resource(object):
 
 
 class ActionResource(Resource):
+    """ Resource for triggering actions """
+
     def __init__(self, db):
         self.db = db
 
@@ -23,6 +25,8 @@ class ActionResource(Resource):
         t.start()
 
     def _run_actions(self, action_id, params):
+        """ Runs all actions that are interested in action_id """
+
         matches = self.db.get_matches(action_id)
         for action_obj in matches:
             self.run_daemon_action(action_id, action_obj.action, params)
@@ -34,6 +38,8 @@ class ActionResource(Resource):
 
 
 class MultiActionResource(ActionResource):
+    """ Resource for triggering actions with json body """
+
     def on_post(self, req, resp, **kwargs):
         body_obj = req.context['body_obj']
         for action in body_obj['actions']:
@@ -41,6 +47,8 @@ class MultiActionResource(ActionResource):
 
 
 class SubscriptionResource(Resource):
+    """ Resource for subscribing slave devices """
+
     def __init__(self, db):
         self.db = db
 

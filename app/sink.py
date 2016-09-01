@@ -2,7 +2,9 @@ import falcon
 
 
 class Sink(object):
-    """ Sink is used to catch or redirect all requests that are not catched by the resources"""
+    """ Sink is used to catch or redirect all requests
+        that are not catched by the resources """
+
     def __init__(self):
         pass
 
